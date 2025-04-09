@@ -45,13 +45,6 @@ const Landing = () => {
                     </div>
                 </div>
             </Wrapper>
-            <div>
-            <PopularCategory/>
-            <HowWorks/>
-            <Team/>
-            <Testimonial/>
-            <Brands/>
-            </div>
         </>
     );
 };
