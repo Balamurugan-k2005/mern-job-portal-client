@@ -54,19 +54,11 @@ const Applicant = () => {
             {jobs?.map((job, index) => {
               let i = index + 1 < 10 ? `0${index + 1}` : index + 1;
               return (
-                <tr key={jobs?.jobId?._id}>
+                <tr key={job?.jobId?._id || index}>
                   <td>{i}</td>
                   <td>{job?.jobId?.position}</td>
                   <td>{job?.jobId?.company}</td>
-                  <td className="action-row">
-                    {job?.status}
-                    {/* <button
-                                            className="action delete"
-                                            onClick={() => deleteModal(job._id)}
-                                        >
-                                            <MdDelete />
-                                        </button> */}
-                  </td>
+                  <td className="action-row">{job?.status}</td>
                 </tr>
               );
             })}
