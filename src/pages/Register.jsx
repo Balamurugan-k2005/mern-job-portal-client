@@ -44,7 +44,7 @@ const Register = () => {
 
         Swal.fire({
           icon: "success",
-          title: "Hurray...",
+          // title: "Hurray...",
           text: response?.data?.message,
         });
         reset();

@@ -38,7 +38,7 @@ const JobCard = ({ job }) => {
       });
       Swal.fire({
         icon: "success",
-        title: "Hurray...",
+        // title: "Hurray...",
         text: response?.data?.message,
       });
     } catch (error) {

@@ -38,7 +38,7 @@ const Login = () => {
       );
       Swal.fire({
         icon: "success",
-        title: "Hurray...",
+        // title: "Hurray...",
         text: response?.data?.message,
       });
       handleFetchMe();
