@@ -1,12 +1,8 @@
-/* eslint-disable react/no-unescaped-entities */
 import React, { useState } from "react";
 import styled from "styled-components";
-import Logo from "../components/Logo";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import Swal from "sweetalert2";
 import { useUserContext } from "../context/UserContext";
 
 const Login = () => {
@@ -19,15 +15,14 @@ const Login = () => {
   } = useForm();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState(""); // For success/error messages
   let navigate = useNavigate();
   let location = useLocation();
   let from = location.state?.from?.pathname || "/"; // to navigate right location after login
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    // password: A@1abcde
 
-    // posting
     try {
       const response = await axios.post(
         "https://mern-job-portal-server-kappa.vercel.app/api/v1/auth/login",
@@ -36,32 +31,32 @@ const Login = () => {
           withCredentials: true,
         }
       );
-      Swal.fire({
-        icon: "success",
-        // title: "Hurray...",
-        text: response?.data?.message,
-      });
-      handleFetchMe();
 
+      // Set success notification
+      setNotification(response?.data?.message || "Login successful");
+
+      handleFetchMe();
       reset();
-      navigate("/");
-      // navigate("/dashboard");
+      setTimeout(() => navigate(from, { replace: true }), 1000); // Redirect after 1 second
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: error?.response?.data,
-      });
+      // Set error notification
+      setNotification(error?.response?.data?.message || "Something went wrong!");
     }
     setIsLoading(false);
   };
 
   return (
     <Wrapper>
-      <div className="container">
-        <div className="flex justify-center">
-          <Logo />
+      {/* Notification Bar */}
+      {notification && (
+        <div className={`notification ${notification.includes("successful") ? "success" : "error"}`}>
+          {notification}
         </div>
+      )}
+
+      <div className="container">
+        <div className="title">Job Portal</div>
+
         <h1>Login</h1>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <div className="row">
@@ -78,9 +73,7 @@ const Login = () => {
               })}
             />
             {errors?.email && (
-              <span className="text-[10px] font-semibold text-red-600 mt-1 pl-1 tracking-wider">
-                {errors?.email?.message}
-              </span>
+              <span className="error-message">{errors?.email?.message}</span>
             )}
           </div>
           <div className="row">
@@ -97,21 +90,19 @@ const Login = () => {
               })}
             />
             {errors?.password && (
-              <span className="text-[10px] font-semibold text-red-600 mt-1 pl-1 tracking-wider">
-                {errors?.password?.message}
-              </span>
+              <span className="error-message">{errors?.password?.message}</span>
             )}
           </div>
           <div className="flex justify-center">
             <button type="submit" disabled={isLoading}>
-              {isLoading ? "Loading..." : "Login"}
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>
-        <div className="">
-          <p className="text-center text-[10px] font-semibold opacity-9 mt-3">
-            Don't have an account.
-            <Link className="ml-1 link" to="/register">
+        <div className="footer">
+          <p>
+            Don't have an account?{" "}
+            <Link className="link" to="/register">
               Create account
             </Link>
           </p>
@@ -129,24 +120,60 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   padding: 30px 0;
+
+  /* Notification Styles */
+  .notification {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+
+  .notification.success {
+    background: #22c55e; /* Green for success */
+  }
+
+  .notification.error {
+    background: #ef4444; /* Red for error */
+  }
+
   .container {
     background: var(--color-white);
     max-width: 360px;
     width: 100%;
     padding: 58px 44px;
-    border: 1px solid #e1e2f0;
-    border-radius: 4px;
-    box-shadow: 0 0 5px 0 rgba(42, 45, 48, 0.12);
+    border: 1px solid #e1e2e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
   }
+
+  .title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: #1d4ed8;
+    text-align: center;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+    cursor: default;
+  }
+
   h1 {
-    margin-top: 20px;
+    margin-top: 0;
     text-align: center;
     text-transform: capitalize;
-    font-size: calc(1rem + 0.5vw);
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
     font-weight: 600;
-    color: var(--color-primary);
+    color: #334155;
   }
+
   form {
     margin-top: calc(1rem + 0.9vw);
   }
@@ -154,75 +181,94 @@ const Wrapper = styled.div`
   .row {
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
   }
 
   .row label {
-    font-size: 12px;
-    color: var(--color-black);
-    font-weight: 400;
-    margin-bottom: 2px;
+    font-size: 0.875rem;
+    color: #475569;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
   }
 
   .row input {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1px solid #d6d8e6;
-    border-radius: 4px;
-    font-size: 12px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.2s ease-out;
   }
 
   .row input:focus {
     outline: none;
-    box-shadow: inset 2px 2px 5px 0 rgba(42, 45, 48, 0.12);
+    border-color: #1d4ed8;
+    box-shadow: 0 0 4px rgba(29, 78, 216, 0.2);
   }
 
   .row input::placeholder {
-    color: var(--color-black);
-    opacity: 0.7;
+    color: #94a3b8;
+    opacity: 1;
+  }
+
+  .error-message {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 0.25rem;
+    padding-left: 0.5rem;
   }
 
   button {
-    width: 50%;
-    min-width: 90px;
-    padding: 8px;
-    font-size: 16px;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
     letter-spacing: 1px;
-    background: var(--color-accent);
-    color: var(--color-white);
+    background: #2563eb;
+    color: #fff;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    margin: 15px auto 0;
+    margin-top: 1rem;
     transition: background 0.2s ease-out;
   }
 
   button:hover {
-    background: var(--color-primary);
+    background: #1e40af;
   }
+
   button:disabled {
-    background: var(--color-gray);
-    color: var(--color-black);
+    background: #cbd5e1;
+    color: #64748b;
     cursor: not-allowed;
+  }
+
+  .footer {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .footer p {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  .footer .link {
+    color: #1d4ed8;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease-out;
+  }
+
+  .footer .link:hover {
+    text-decoration: underline;
   }
 
   @media (max-width: 458px) {
     .container {
       width: 90%;
-      padding: 30px 0;
+      padding: 30px 20px;
     }
-    form {
-      padding: 0 20px;
-    }
-  }
-  p .link {
-    text-transform: capitalize;
-    color: var(--color-primary);
-  }
-  p .link:hover {
-    text-decoration: underline;
   }
 `;
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Wrapper from "../assets/css/wrappers/LandingPage";
 import { Link } from "react-router-dom";
-import photo from "../assets/media/LandingPage/hero.png";
 import Navbar from "../components/shared/Navbar";
 
 const Landing = () => {
@@ -34,9 +33,9 @@ const Landing = () => {
               </Link>
             </div>
           </div>
-          <div className="placeholder">
+          {/* <div className="placeholder">
             <img src={photo} alt="job viva photo" />
-          </div>
+          </div> */}
         </div>
       </Wrapper>
     </>
