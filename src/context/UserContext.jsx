@@ -1,39 +1,54 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
-const userContext = React.createContext();
+// Create the context
+const UserContext = createContext();
 
-const UserContext = ({ children }) => {
-  const [userLoading, setUserLoading] = useState(true);
-  const [userError, setUserError] = useState({ status: false, message: "" });
-  const [user, setUser] = useState({});
+// Provider Component
+const UserProvider = ({ children }) => {
+  const [userLoading, setUserLoading] = useState(true); // Tracks loading state
+  const [userError, setUserError] = useState({ status: false, message: "" }); // Tracks errors
+  const [user, setUser] = useState(null); // Stores the current user
 
+  // Fetch the logged-in user's details
   const handleFetchMe = async () => {
-    setUserLoading(true);
+    setUserLoading(true); // Start loading
     try {
       const response = await axios.get(
         `https://mern-job-portal-server-kappa.vercel.app/api/v1/auth/me`,
         { withCredentials: true }
       );
-      setUserError({ status: false, message: "" });
+
+      // Set user data if authenticated
       setUser(response?.data?.result);
+      setUserError({ status: false, message: "" });
     } catch (error) {
-      setUserError({ status: true, message: error?.message });
-      setUser({ status: false });
+      if (error.response?.status === 401) {
+        // Handle unauthorized access (user is not logged in)
+        setUser(null); // Clear user data
+      } else {
+        // Handle other errors
+        setUserError({ status: true, message: error?.response?.data?.message || "Something went wrong" });
+      }
+    } finally {
+      setUserLoading(false); // Stop loading
     }
-    setUserLoading(false);
   };
 
   useEffect(() => {
-    handleFetchMe();
+    handleFetchMe(); // Fetch user data on component mount
   }, []);
 
-  const passing = { userLoading, userError, user, handleFetchMe };
+  const contextValue = { userLoading, userError, user, handleFetchMe };
   return (
-    <userContext.Provider value={passing}>{children}</userContext.Provider>
+    <UserContext.Provider value={contextValue}>
+      {children}
+    </UserContext.Provider>
   );
 };
 
-const useUserContext = () => useContext(userContext);
+// Hook to use the context
+const useUserContext = () => useContext(UserContext);
 
-export { useUserContext, UserContext };
+// Export the context and provider
+export { UserContext, UserProvider, useUserContext };

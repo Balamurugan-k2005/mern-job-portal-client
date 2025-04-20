@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import './App.css'
+import './App.css';
 import router from "./Router/Routes";
 import { RouterProvider } from "react-router-dom";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { UserContext } from "./context/UserContext";
+import { UserProvider } from "./context/UserContext"; // Import UserProvider instead of UserContext
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
@@ -16,14 +16,11 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        {/* <UserContext>
-            <RouterProvider router={router}></RouterProvider>
-        </UserContext> */}
-
         <QueryClientProvider client={queryClient}>
-            <UserContext>
+            {/* Use UserProvider instead of UserContext */}
+            <UserProvider>
                 <RouterProvider router={router}></RouterProvider>
-            </UserContext>
+            </UserProvider>
         </QueryClientProvider>
     </React.StrictMode>
 );
